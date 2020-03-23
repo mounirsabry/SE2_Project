@@ -1,0 +1,79 @@
+Three types of users:
+	normal user.
+	shop owner.
+	admin.
+	
+normal user can sign up and log in.
+shop owner can sign up and log in.
+
+admin can log in and added through the database and cms.
+
+Outer interface.
+	two separate account types.
+		customer -> explore, buy.
+		seller -> suggest products, market.
+		
+Server interface.
+	admins.
+	
+Sign up and log in interfaces will be separate for each the normal user
+and shop owner.
+
+User: choose normal user sign up.
+System: enter your email.
+User -> enter email.
+System: enter your username.
+User -> userName;
+System: enter password.
+User -> password.
+
+System: Registration complete.
+System -> display menu.
+
+another:
+	User -> choice normal user log in.
+	system: enter your email.
+	User -> email.
+	System: enter your password.
+	User -> password.
+	System: Login complete.
+	System -> display menu.
+	
+the same applies to shop owner.
+
+Admin:
+	no sign up, will be added through database or added by another admin.
+	Login is the same as the user.
+	
+	Account:
+		Mounir@email.com
+		mounirsabry
+		123456
+	
+	Admin:
+		system: enter your email.
+		User -> Mounir@email.com
+		system: enter your password.
+		User -> 12345
+		system:	either email or password is incorrect.
+		User -> 123456
+		system -> admin menu including display all users.
+		all users -> (normal user, store owner, admin).
+	
+display all users interface.
+	Normal user:
+		ID email
+	Store Owner:
+		ID email
+	Admin:
+		ID email
+		
+Database:
+	User(ID:primary key, email, username, password).
+	NormalUser(ID:foreign key, email: primary key, ....).
+	the same applies to shop owner and admin.
+
+	
+		
+	
+	
