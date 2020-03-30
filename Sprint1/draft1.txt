@@ -56,9 +56,6 @@ add another admin.
 Database:
 	User(ID:primary key, email, username, password).
 	NormalUser(ID:foreign key, email: primary key, ....).
-	the same applies to shop owner and admin.
-
-	
-		
+	the same applies to shop owner and admin..
 	
 	
