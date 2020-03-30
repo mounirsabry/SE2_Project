@@ -6,41 +6,26 @@ Three types of users:
 normal user can sign up and log in.
 shop owner can sign up and log in.
 
-admin can log in and added through the database and cms.
+admin can log in and added through the database and through anothe admin.
 
-Outer interface.
-	two separate account types.
-		customer -> explore, buy.
-		seller -> suggest products, market.
-		
-Server interface.
-	admins.
+Interface:
+	normal user -> sign up, log in.
+	shop owner -> sign up, log in.
+	admin -> log in.
 	
 Sign up and log in interfaces will be separate for each the normal user
-and shop owner.
+and shop owner and admin.
 
-User: choose normal user sign up.
-System: enter your email.
-User -> enter email.
-System: enter your username.
-User -> userName;
-System: enter password.
-User -> password.
+Sign up scenairo:
+	Normal User -> sign up for normal user function.
+	Normal User -> email, username, password.
+	System -> String(successs, failed then give the user the reason).
 
-System: Registration complete.
-System -> display menu.
-
-another:
-	User -> choice normal user log in.
-	system: enter your email.
-	User -> email.
-	System: enter your password.
-	User -> password.
-	System: Login complete.
-	System -> display menu.
+Log in scenairo:
+	Normal User -> log in for normal user function.
+	Normal User -> email, password.
+	System -> String or token representing the user.
 	
-the same applies to shop owner.
-
 Admin:
 	no sign up, will be added through database or added by another admin.
 	Login is the same as the user.
@@ -50,15 +35,10 @@ Admin:
 		mounirsabry
 		123456
 	
-	Admin:
-		system: enter your email.
-		User -> Mounir@email.com
-		system: enter your password.
-		User -> 12345
-		system:	either email or password is incorrect.
-		User -> 123456
-		system -> admin menu including display all users.
-		all users -> (normal user, store owner, admin).
+	Log in:
+		admin -> choose admin log in function.
+		admin -> Mounir@email.com, mounirsabry, 123456.
+		System -> return a token to the admin if successed.
 	
 display all users interface.
 	Normal user:
@@ -67,6 +47,11 @@ display all users interface.
 		ID email
 	Admin:
 		ID email
+		
+add another admin.
+	this function is for admin user.
+	Admin -> email, username, password.
+	System -> success, failed.
 		
 Database:
 	User(ID:primary key, email, username, password).
