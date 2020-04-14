@@ -1,0 +1,61 @@
+Three types of users:
+	normal user.
+	shop owner.
+	admin.
+	
+normal user can sign up and log in.
+shop owner can sign up and log in.
+
+admin can log in and added through the database and through anothe admin.
+
+Interface:
+	normal user -> sign up, log in.
+	shop owner -> sign up, log in.
+	admin -> log in.
+	
+Sign up and log in interfaces will be separate for each the normal user
+and shop owner and admin.
+
+Sign up scenairo:
+	Normal User -> sign up for normal user function.
+	Normal User -> email, username, password.
+	System -> String(successs, failed then give the user the reason).
+
+Log in scenairo:
+	Normal User -> log in for normal user function.
+	Normal User -> email, password.
+	System -> String or token representing the user.
+	
+Admin:
+	no sign up, will be added through database or added by another admin.
+	Login is the same as the user.
+	
+	Account:
+		Mounir@email.com
+		mounirsabry
+		123456
+	
+	Log in:
+		admin -> choose admin log in function.
+		admin -> Mounir@email.com, mounirsabry, 123456.
+		System -> return a token to the admin if successed.
+	
+display all users interface.
+	Normal user:
+		ID email
+	Store Owner:
+		ID email
+	Admin:
+		ID email
+		
+add another admin.
+	this function is for admin user.
+	Admin -> email, username, password.
+	System -> success, failed.
+		
+Database:
+	User(ID:primary key, email, username, password).
+	NormalUser(ID:foreign key, email: primary key, ....).
+	the same applies to shop owner and admin..
+	
+	

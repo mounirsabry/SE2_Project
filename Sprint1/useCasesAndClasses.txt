@@ -1,0 +1,98 @@
+Sign Up:
+	User<Entity>.
+	SignUpInterface<Interface>.
+	SignUpController<Controller>.
+	Attriubutes:
+		email.
+		username.
+		password.
+
+	Methods:
+		signUp().
+		
+Log In:
+	User<Entity>.
+	LogInInterface<Interface>.
+	LogInController<Controller>.
+	Attriubutes:
+		email.
+		password.
+		
+	Methods:
+		logIn().
+		
+Authentication:
+	AccountsController<Controller>
+	AccountsInterface<Interface>
+	User<Entity>
+	Attriubutes:
+		email.
+		username.
+		password.
+		user type.
+	
+	Methods:
+		authenticate().
+		signUp().
+		logIn().
+
+		
+Log Out:
+	User<Entity>
+	LogOutInterface<Interface>
+	LogOutController<Controller>
+	
+	Methods:
+		logIn().
+		logOut().
+		
+Delete User:
+	User<Entity>
+	AccoutsController<Controller>
+	AccountSystemInterface<Interface>
+	DeleteUserInterface<Interface>
+	DeleteUserController<Controller>
+	
+	Methods:
+		deleteUserFromSystem().
+		deleteUserFromAccountSystem().
+		logTheUserOut().
+		
+List All Users:
+	User<Entity>
+	Admin<Entity>
+	
+	AdminMenuInterface<Interface>
+	AdminMenuController<Controller>
+	
+	AccountsInterface<Interface>
+	AccountsController<Controller>
+	
+	Attributes:
+		ID.
+		email.
+		List(Users).
+	
+	Methods:
+		logIn().
+		getAllUsers().
+		sendAllUsers().
+		displayAllUsers().
+		
+Add Another Admin:
+	Admin<Entity>
+	
+	AdminMenuInterface<Interface>
+	AdminMenuController<Controller>
+	
+	AccountsInterface<Interface>
+	AccountsController<Controller>
+	
+	Attributes:
+		email.
+		username.
+		password.
+	
+	Methods:
+		addAnotherAdmin().
+		
