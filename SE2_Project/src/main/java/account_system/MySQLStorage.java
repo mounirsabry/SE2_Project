@@ -13,14 +13,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
-
 public class MySQLStorage extends AccountsStorage {
+
     private final String DATABASE_NAME = "se2_project";
     private final String USER = "root";
     private final String HOST = "localhost";
     private final String PORT = "3306";
     private final String PASSWORD = "root";
-    
+
     private final String MYSQL_FILE = "mysql_database.sql";
     private final String USERS_TABLE = "my_user";
     private final String NORMAL_USERS_TABLE = "normal_user";
@@ -31,9 +31,8 @@ public class MySQLStorage extends AccountsStorage {
     public MySQLStorage() {
         checkDataBase();
     }
-    
-    private Connection getConnection()
-    {
+
+    private Connection getConnection() {
         Connection connection = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -44,7 +43,7 @@ public class MySQLStorage extends AccountsStorage {
         }
         return connection;
     }
-    
+
     private boolean isDBExist() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -52,19 +51,33 @@ public class MySQLStorage extends AccountsStorage {
                     + "user=" + USER + "&password=" + PASSWORD);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         } catch (SQLException ex) {
             String exceptionMessage = ex.getMessage();
             if (exceptionMessage.equals("Unknown database '" + DATABASE_NAME + "'")) {
+                return false;
+            } else {
+                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
         }
         return true;
     }
-    
+
     private void createDataBase() {
+
+        Connection connection = null;
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + "mysql" + "?"
+                    + "user=" + USER + "&password=" + PASSWORD);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException ex) {
+            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         Reader reader = null;
         try {
-            Connection connection = getConnection();
             ScriptRunner scriptRunner = new ScriptRunner(connection);
             reader = new BufferedReader(new FileReader(MYSQL_FILE));
             scriptRunner.runScript(reader);
@@ -80,22 +93,23 @@ public class MySQLStorage extends AccountsStorage {
             }
         }
     }
-    
+
     private void checkDataBase() {
-        if(!isDBExist()) {
+        if (!isDBExist()) {
             createDataBase();
         }
     }
-    
+
     private String generateToken(String userType) {
         //Token : userType:Random Number.
         //Random Number: random 4-digit fixed, 1000 - 9999.
         return "";
     }
-            
+
     @Override
     public boolean signUp(String email, String userName, String password, String userType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

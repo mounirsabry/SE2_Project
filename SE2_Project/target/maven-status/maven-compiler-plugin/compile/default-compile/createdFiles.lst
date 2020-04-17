@@ -1,4 +1,5 @@
 account_management\LogInInterface.class
+account_system\MySQLStorage.class
 account_system\AccountsControl.class
 user_package\User.class
 user_package\NormalUser.class
@@ -13,6 +14,7 @@ user_package\ShopOwner.class
 account_management\DeleteUserInterface.class
 account_system\AccountsExistenceInterface.class
 account_management\SignUpController.class
+account_system\AccountsStorage.class
 account_management\LogOutController.class
 account_management\LogInController.class
 account_management\LogOutInterface.class
