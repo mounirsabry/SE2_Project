@@ -1,0 +1,11 @@
+Mostafa Badr will work on proxy.
+Mina Faried will work in docker.
+Mina Botros will work in DB Code.
+Mounir sabry will work in DB Schema.
+	
+Mina Botros:
+	generateToken.
+	logIn.
+	
+Mostafa Badr:
+	The rest.
