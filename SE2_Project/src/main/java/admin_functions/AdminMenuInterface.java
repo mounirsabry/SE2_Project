@@ -13,4 +13,8 @@ public class AdminMenuInterface {
     public List<List<String>> getAllUsers(String token) {
         return adminMenuController.getAllUsers(token);
     }
+    
+    public boolean addAnotherAdmin(String token, String email, String userName, String password) {
+        return adminMenuController.addAnotherAdmin(token, email, userName, password);
+    }
 }

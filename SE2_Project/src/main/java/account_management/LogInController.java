@@ -1,6 +1,6 @@
 package account_management;
 
-import account_system.AccountsControl;
+import account_system.AccountsStorage;
 import account_system.AccountsLoggingInterface;
 
 public class LogInController {
@@ -15,21 +15,21 @@ public class LogInController {
         if (fieldsAreEmpty(email, password)) {
             return null;
         }
-        return accountsLoggingInterface.logIn(email, password, AccountsControl.NORMAL_USER);
+        return accountsLoggingInterface.logIn(email, password, AccountsStorage.NORMAL_USER);
     }
 
     public String shopOwnerLogIn(String email, String password) {
         if (fieldsAreEmpty(email, password)) {
             return null;
         }
-        return accountsLoggingInterface.logIn(email, password, AccountsControl.SHOP_OWNER);
+        return accountsLoggingInterface.logIn(email, password, AccountsStorage.SHOP_OWNER);
     }
 
     public String adminLogIn(String email, String password) {
         if (fieldsAreEmpty(email, password)) {
             return null;
         }
-        return accountsLoggingInterface.logIn(email, password, AccountsControl.ADMIN);
+        return accountsLoggingInterface.logIn(email, password, AccountsStorage.ADMIN);
     }
 
     private boolean fieldsAreEmpty(String email, String password) {

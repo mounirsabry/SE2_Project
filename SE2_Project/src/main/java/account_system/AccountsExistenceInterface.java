@@ -4,21 +4,25 @@ import java.util.List;
 
 public class AccountsExistenceInterface {
 
-    private AccountsControl accountsControl;
+    private final AccountsStorage accountsStorage;
 
     public AccountsExistenceInterface() {
-        accountsControl = new AccountsControl();
+        accountsStorage = new MySQLStorage();
     }
 
     public boolean signUp(String email, String userName, String password, String userType) {
-        return accountsControl.signUp(email, userName, password, userType);
+        return accountsStorage.signUp(email, userName, password, userType);
+    }
+    
+    public boolean addAnotherAdmin(String token, String email, String userName, String password) {
+        return accountsStorage.addAnotherAdmin(token, email, userName, password);
     }
 
     public boolean deleteAccount(String token, String email, String userType) {
-        return accountsControl.deleteAccount(token, email, userType);
+        return accountsStorage.deleteAccount(token, email, userType);
     }
 
     public List<List<String>> getAllUsers(String token) {
-        return accountsControl.getAllUsers(token);
+        return accountsStorage.getAllUsers(token);
     }
 }

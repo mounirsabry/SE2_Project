@@ -1,6 +1,6 @@
 package account_management;
 
-import account_system.AccountsControl;
+import account_system.AccountsStorage;
 import account_system.AccountsExistenceInterface;
 import account_system.AccountsLoggingInterface;
 

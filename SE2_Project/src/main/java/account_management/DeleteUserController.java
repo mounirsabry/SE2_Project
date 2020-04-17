@@ -1,6 +1,6 @@
 package account_management;
 
-import account_system.AccountsControl;
+import account_system.AccountsStorage;
 import account_system.AccountsExistenceInterface;
 
 public class DeleteUserController {
@@ -15,21 +15,21 @@ public class DeleteUserController {
         if (fieldsAreEmpty(token, email)) {
             return false;
         }
-        return accountsExistenceInterface.deleteAccount(token, email, AccountsControl.NORMAL_USER);
+        return accountsExistenceInterface.deleteAccount(token, email, AccountsStorage.NORMAL_USER);
     }
 
     public boolean deleteShopOwnerAccount(String token, String email) {
         if (fieldsAreEmpty(token, email)) {
             return false;
         }
-        return accountsExistenceInterface.deleteAccount(token, email, AccountsControl.SHOP_OWNER);
+        return accountsExistenceInterface.deleteAccount(token, email, AccountsStorage.SHOP_OWNER);
     }
 
     public boolean deleteAdminAccount(String token, String email) {
         if (fieldsAreEmpty(token, email)) {
             return false;
         }
-        return accountsExistenceInterface.deleteAccount(token, email, AccountsControl.ADMIN);
+        return accountsExistenceInterface.deleteAccount(token, email, AccountsStorage.ADMIN);
     }
 
     public boolean fieldsAreEmpty(String token, String email) {

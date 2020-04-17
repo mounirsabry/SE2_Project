@@ -2,17 +2,17 @@ package account_system;
 
 public class AccountsLoggingInterface {
 
-    private AccountsControl accountsControl;
+    private final AccountsStorage accountsStorage;
 
     public AccountsLoggingInterface() {
-        accountsControl = new AccountsControl();
+        accountsStorage = new MySQLStorage();
     }
 
     public String logIn(String token, String password, String userType) {
-        return accountsControl.logIn(token, password, userType);
+        return accountsStorage.logIn(token, password, userType);
     }
 
     public boolean logOut(String token) {
-        return accountsControl.logOut(token);
+        return accountsStorage.logOut(token);
     }
 }

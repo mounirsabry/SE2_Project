@@ -1,6 +1,6 @@
 package account_management;
 
-import account_system.AccountsControl;
+import account_system.AccountsStorage;
 import account_system.AccountsExistenceInterface;
 
 public class SignUpController {
@@ -15,14 +15,14 @@ public class SignUpController {
         if (fieldsAreEmpty(email, userName, password)) {
             return false;
         }
-        return accountsExistenceInterface.signUp(email, userName, password, AccountsControl.NORMAL_USER);
+        return accountsExistenceInterface.signUp(email, userName, password, AccountsStorage.NORMAL_USER);
     }
 
     public boolean shopOwnerSignUp(String email, String userName, String password) {
         if (fieldsAreEmpty(email, userName, password)) {
             return false;
         }
-        return accountsExistenceInterface.signUp(email, userName, password, AccountsControl.SHOP_OWNER);
+        return accountsExistenceInterface.signUp(email, userName, password, AccountsStorage.SHOP_OWNER);
     }
 
     private boolean fieldsAreEmpty(String email, String userName, String password) {
