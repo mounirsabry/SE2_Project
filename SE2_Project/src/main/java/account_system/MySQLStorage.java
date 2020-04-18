@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class MySQLStorage extends AccountsStorage {
 
@@ -83,14 +84,11 @@ public class MySQLStorage extends AccountsStorage {
 
     private boolean checkToken(String token) {
         String query = "select * from tokens where token = " + '"' + token + '"' + ";";
-
+        ResultSet result;
         try {
-            Connection connection = getConnection(DATABASE_NAME);
-            Statement statement = connection.createStatement();
-
-            // execute the query, and get a java resultset
-            ResultSet result = statement.executeQuery(query);
-            connection.close();
+                Connection connection = getConnection(DATABASE_NAME);
+                Statement statement = connection.createStatement();
+                result = statement.executeQuery(query);
 
             if (result.next()) {
                 return true;
@@ -121,17 +119,107 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public boolean signUp(String email, String userName, String password, String userType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String tableType;
+        if (userType.equals(NORMAL_USER)) {
+            tableType = NORMAL_USERS_TABLE;
+        } else if (userType.equals(SHOP_OWNER)) {
+            tableType = SHOP_OWNERS_TABLE;
+        } else {
+            tableType = ADMINS_TABLE;
+        }
+
+        try {
+            Connection connection = getConnection(DATABASE_NAME);
+            Statement statement;
+            String getMails;
+            getMails = "select * from " + tableType + " where email = " + '"' + email + '"' + ";";
+            
+            statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(getMails);
+            if (result.next()) {
+                connection.close();
+                return false;
+            } else {
+                String trueStatment, user;
+                user = "insert into " + USERS_TABLE + " (email,username,password) " + "values (" +'"'+ email +'"'
+                        + "," + '"' + userName + '"' + "," + '"' + password + '"' + ");";
+                statement.executeUpdate(user);
+
+                getMails = "select * from " + USERS_TABLE + " ORDER BY id DESC LIMIT 1;";
+                result = statement.executeQuery(getMails);
+                int id = 0;
+                while (result.next()){
+                    id = result.getInt("id");
+                    break;
+                }
+                trueStatment = "insert into " + tableType + " (id,email) " + "values (" + id + "," + '"' + email + '"' + ")" + ";";
+                statement.executeUpdate(trueStatment);
+                connection.close();
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     @Override
     public boolean addAnotherAdmin(String token, String email, String userName, String password) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(checkToken(token)){
+            try {
+                String []userType = token.split(":");
+                if (userType[0].equals(ADMIN)){
+                    signUp(email, userName, password, ADMIN);
+                    return true;
+                }
+            } catch (Exception e) {
+                
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean deleteAccount(String token, String email, String userType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        String tableType;
+        if (userType.equals(NORMAL_USER)) {
+            tableType = NORMAL_USERS_TABLE;
+        } else if (userType.equals(SHOP_OWNER)) {
+            tableType = SHOP_OWNERS_TABLE;
+        } else {
+            tableType = ADMINS_TABLE;
+        }
+
+        if (checkToken(token)) {
+            try {
+                Connection connection = getConnection(DATABASE_NAME);
+                Statement statement;
+                String getIDFromToken = "select * from " + TOKENS_TABLE + " where token = " + '"' + token + '"' + ";";
+
+                statement = connection.createStatement();
+                ResultSet result = statement.executeQuery(getIDFromToken);
+                
+                int id = 0;
+                while(result.next()){
+                    id = result.getInt("id");
+                    break;
+                }
+                
+                logOut(token);
+                
+                String deleteQuery = "DELETE FROM " + tableType + " WHERE id = " + id + ";";
+                statement.executeUpdate(deleteQuery);
+                
+                deleteQuery = "DELETE FROM " + USERS_TABLE + " WHERE id = " + id + ";";
+                statement.executeUpdate(deleteQuery);
+                return true;
+
+            } catch (SQLException e) {
+                
+            }
+        }
+        return false;
     }
 
     @Override
@@ -185,12 +273,74 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public boolean logOut(String token) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (checkToken(token)) {
+            try {
+                String deleteToken;
+                Connection connection = getConnection(DATABASE_NAME);
+                deleteToken = "DELETE FROM " + TOKENS_TABLE + " WHERE token = " + '"' + token + '"' + ";";
+                Statement statement;
+                statement = connection.createStatement();
+                statement.executeUpdate(deleteToken);
+                connection.close();
+                return true;
+            } catch (SQLException ex) {
+                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+
+        } else {
+            return false;
+        }
     }
 
     @Override
     public List<List<String>> getAllUsers(String token) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        List <List<String>> allUsers = new ArrayList<>();
+        List <String> normalUsers = new ArrayList<>();
+        List <String> shopOwners = new ArrayList<>();
+        List <String> admins = new ArrayList<>();
+        
+        if (checkToken(token)) {
+            String[] userType = token.split(":");
+            if (userType[0].equals(ADMIN)) {
+                try {
+                    Connection connection = getConnection(DATABASE_NAME);
+                    ResultSet result;
+                    Statement statement = connection.createStatement();
+                    
+                    String tmp = "";
+                    
+                    String query = "select * from " + NORMAL_USERS_TABLE + ";";
+                    result = statement.executeQuery(query);
+                    while(result.next()){
+                        tmp = result.getString("email");
+                        normalUsers.add(tmp);
+                    }
+                    allUsers.add(normalUsers);
+                    
+                    query = "select * from " + SHOP_OWNERS_TABLE + ";";
+                    result = statement.executeQuery(query);
+                    while(result.next()){
+                        tmp = result.getString("email");
+                        shopOwners.add(tmp);
+                    }
+                    allUsers.add(shopOwners);
+                    
+                    query = "select * from " + ADMINS_TABLE + ";";
+                    result = statement.executeQuery(query);
+                    while(result.next()){
+                        tmp = result.getString("email");
+                        admins.add(tmp);
+                    }
+                    allUsers.add(admins);
+                    
+                } catch (SQLException e) {
+                    
+                }
+            }
+        }
+        return allUsers;
     }
 
 }
