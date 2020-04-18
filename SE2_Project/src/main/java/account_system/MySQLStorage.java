@@ -119,9 +119,53 @@ public class MySQLStorage extends AccountsStorage {
         }
     }
 
-    @Override
+     @Override
     public boolean signUp(String email, String userName, String password, String userType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        if (userType.equals(ADMINS_TABLE)){
+            return false;
+        }
+        
+        String tableType;
+        if (userType.equals(NORMAL_USER)) {
+            tableType = NORMAL_USERS_TABLE;
+        } else {
+            tableType = SHOP_OWNERS_TABLE;
+        } 
+
+        try {
+            Connection connection = getConnection(DATABASE_NAME);
+            Statement statement;
+            String getMails;
+            getMails = "select * from " + tableType + " where email = " + '"' + email + '"' + ";";
+            
+            statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(getMails);
+            if (result.next()) {
+                connection.close();
+                return false;
+            } else {
+                String trueStatment, user;
+                user = "insert into " + USERS_TABLE + " (email,username,password) " + "values (" +'"'+ email +'"'
+                        + "," + '"' + userName + '"' + "," + '"' + password + '"' + ");";
+                statement.executeUpdate(user);
+
+                getMails = "select * from " + USERS_TABLE + " ORDER BY id DESC LIMIT 1;";
+                result = statement.executeQuery(getMails);
+                int id = 0;
+                while (result.next()){
+                    id = result.getInt("id");
+                    break;
+                }
+                trueStatment = "insert into " + tableType + " (id,email) " + "values (" + id + "," + '"' + email + '"' + ")" + ";";
+                statement.executeUpdate(trueStatment);
+                connection.close();
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     @Override
