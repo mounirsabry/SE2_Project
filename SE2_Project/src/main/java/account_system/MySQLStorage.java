@@ -25,21 +25,20 @@ public class MySQLStorage extends AccountsStorage {
     private final String MYSQL_FILE = "mysql_database.sql";
     private final String USERS_TABLE = "my_user";
     private final String NORMAL_USERS_TABLE = "normal_user";
-    private final String SHOP_OWNER_TABLE = "shop_owner";
-    private final String ADMIN_TABLE = "my_admin";
+    private final String SHOP_OWNERS_TABLE = "shop_owner";
+    private final String ADMINS_TABLE = "my_admin";
     private final String TOKENS_TABLE = "tokens";
 
     public MySQLStorage() {
         checkDataBase();
     }
 
-    private Connection getConnection() {
+    private Connection getConnection(String databaseName) {
         Connection connection = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?"
-                    + "user=" + USER + "&password=" + PASSWORD);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException ex) {
+            connection = DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + databaseName, USER, PASSWORD);
+        } catch (ClassNotFoundException | SQLException | InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return connection;
@@ -48,35 +47,16 @@ public class MySQLStorage extends AccountsStorage {
     private boolean isDBExist() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?"
-                    + "user=" + USER + "&password=" + PASSWORD);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE_NAME, USER, PASSWORD);
+        } catch (ClassNotFoundException | SQLException | InstantiationException | IllegalAccessException ex) {
             return false;
-        } catch (SQLException ex) {
-            String exceptionMessage = ex.getMessage();
-            if (exceptionMessage.equals("Unknown database '" + DATABASE_NAME + "'")) {
-                return false;
-            } else {
-                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
         }
         return true;
     }
 
     private void createDataBase() {
 
-        Connection connection = null;
-
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + "mysql" + "?"
-                    + "user=" + USER + "&password=" + PASSWORD);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException ex) {
-            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        Connection connection = getConnection("mysql");
         Reader reader = null;
         try {
             ScriptRunner scriptRunner = new ScriptRunner(connection);
@@ -105,20 +85,19 @@ public class MySQLStorage extends AccountsStorage {
         String query = "select * from tokens where token = " + '"' + token + '"' + ";";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            Connection connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?" + "user=" + USER + "&password=" + PASSWORD);
+            Connection connection = getConnection(DATABASE_NAME);
             Statement statement = connection.createStatement();
 
             // execute the query, and get a java resultset
             ResultSet result = statement.executeQuery(query);
+            connection.close();
 
             if (result.next()) {
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
-        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
@@ -131,7 +110,6 @@ public class MySQLStorage extends AccountsStorage {
         // Generate the random number;
         String token;
         while (true) {
-            token = "";
             int randomNumber = (int) ((Math.random() * ((9999 - 1000) + 1)) + 1000);
             token = userType + ":" + randomNumber;
 
@@ -160,16 +138,19 @@ public class MySQLStorage extends AccountsStorage {
     public String logIn(String email, String password, String userType) {
 
         String tableType;
-        if (userType.equals("admin"))
-            tableType = "my_admin";
-        else
-            tableType = userType;
+        if (userType.equals(NORMAL_USER)) {
+            tableType = NORMAL_USERS_TABLE;
+        } else if (userType.equals(SHOP_OWNER)) {
+            tableType = SHOP_OWNERS_TABLE;
+        } else {
+            tableType = ADMINS_TABLE;
+        }
+
         String checkAccountInTypeTableQuery = "select * from " + tableType + " where email = " + '"' + email + '"' + ";";
 
         try {
             int id;
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            Connection connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?" + "user=" + USER + "&password=" + PASSWORD);
+            Connection connection = getConnection(DATABASE_NAME);
             Statement statement = connection.createStatement();
 
             // execute the query, and get a java resultset
@@ -195,7 +176,7 @@ public class MySQLStorage extends AccountsStorage {
                     return token;
                 }
             }
-        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
 
