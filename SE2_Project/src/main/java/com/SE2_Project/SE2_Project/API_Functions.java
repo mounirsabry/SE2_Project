@@ -8,9 +8,45 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.ibatis.jdbc.ScriptRunner;
 
 @RestController
 public class API_Functions {
+
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public String test() {
+        String log = "";
+        Connection connection = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            connection = DriverManager.getConnection("jdbc:mysql://" + "localhost" + ":" + "3306" + "/" + "mysql", "root", "root");
+        } catch (ClassNotFoundException | SQLException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(API_Functions.class.getName()).log(Level.SEVERE, null, ex);
+            log += ex.getMessage() + "\n";
+        }
+        log += connection + "\n";
+        ScriptRunner scriptRunner = new ScriptRunner(connection); //System.out.println("\n\n" + log + "\n\n");
+        InputStream inputStream = this.getClass().getResourceAsStream("/mysql_database.sql");
+        Reader reader = new InputStreamReader(inputStream);
+        scriptRunner.runScript(reader);
+        log += "worked\n";
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(API_Functions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Gson json = new Gson();
+        return json.toJson(log);
+    }
 
     @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET)
     public String getAllUsers(String token) {

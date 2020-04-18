@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -56,23 +58,15 @@ public class MySQLStorage extends AccountsStorage {
     }
 
     private void createDataBase() {
-
         Connection connection = getConnection("mysql");
-        Reader reader = null;
+        ScriptRunner scriptRunner = new ScriptRunner(connection);
+        InputStream inputStream = this.getClass().getResourceAsStream("/mysql_database.sql");
+        Reader reader = new InputStreamReader(inputStream);
+        scriptRunner.runScript(reader);
         try {
-            ScriptRunner scriptRunner = new ScriptRunner(connection);
-            reader = new BufferedReader(new FileReader(MYSQL_FILE));
-            scriptRunner.runScript(reader);
-        } catch (FileNotFoundException ex) {
+            reader.close();
+        } catch (IOException ex) {
             Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }
 
@@ -86,9 +80,9 @@ public class MySQLStorage extends AccountsStorage {
         String query = "select * from tokens where token = " + '"' + token + '"' + ";";
         ResultSet result;
         try {
-                Connection connection = getConnection(DATABASE_NAME);
-                Statement statement = connection.createStatement();
-                result = statement.executeQuery(query);
+            Connection connection = getConnection(DATABASE_NAME);
+            Statement statement = connection.createStatement();
+            result = statement.executeQuery(query);
 
             if (result.next()) {
                 return true;
@@ -117,7 +111,7 @@ public class MySQLStorage extends AccountsStorage {
         }
     }
 
-     @Override
+    @Override
     public boolean signUp(String email, String userName, String password, String userType) {
         String tableType;
         if (userType.equals(NORMAL_USER)) {
@@ -128,13 +122,12 @@ public class MySQLStorage extends AccountsStorage {
             tableType = ADMINS_TABLE;
         }
 
-
         try {
             Connection connection = getConnection(DATABASE_NAME);
             Statement statement;
             String getMails;
             getMails = "select * from " + tableType + " where email = " + '"' + email + '"' + ";";
-            
+
             statement = connection.createStatement();
             ResultSet result = statement.executeQuery(getMails);
             if (result.next()) {
@@ -142,14 +135,14 @@ public class MySQLStorage extends AccountsStorage {
                 return false;
             } else {
                 String trueStatment, user;
-                user = "insert into " + USERS_TABLE + " (email,username,password) " + "values (" +'"'+ email +'"'
+                user = "insert into " + USERS_TABLE + " (email,username,password) " + "values (" + '"' + email + '"'
                         + "," + '"' + userName + '"' + "," + '"' + password + '"' + ");";
                 statement.executeUpdate(user);
 
                 getMails = "select * from " + USERS_TABLE + " ORDER BY id DESC LIMIT 1;";
                 result = statement.executeQuery(getMails);
                 int id = 0;
-                while (result.next()){
+                while (result.next()) {
                     id = result.getInt("id");
                     break;
                 }
@@ -166,15 +159,15 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public boolean addAnotherAdmin(String token, String email, String userName, String password) {
-        if(checkToken(token)){
+        if (checkToken(token)) {
             try {
-                String []userType = token.split(":");
-                if (userType[0].equals(ADMIN)){
+                String[] userType = token.split(":");
+                if (userType[0].equals(ADMIN)) {
                     signUp(email, userName, password, ADMIN);
                     return true;
                 }
             } catch (Exception e) {
-                
+
             }
         }
         return false;
@@ -182,7 +175,7 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public boolean deleteAccount(String token, String email, String userType) {
-        
+
         String tableType;
         if (userType.equals(NORMAL_USER)) {
             tableType = NORMAL_USERS_TABLE;
@@ -200,24 +193,24 @@ public class MySQLStorage extends AccountsStorage {
 
                 statement = connection.createStatement();
                 ResultSet result = statement.executeQuery(getIDFromToken);
-                
+
                 int id = 0;
-                while(result.next()){
+                while (result.next()) {
                     id = result.getInt("id");
                     break;
                 }
-                
+
                 logOut(token);
-                
+
                 String deleteQuery = "DELETE FROM " + tableType + " WHERE id = " + id + ";";
                 statement.executeUpdate(deleteQuery);
-                
+
                 deleteQuery = "DELETE FROM " + USERS_TABLE + " WHERE id = " + id + ";";
                 statement.executeUpdate(deleteQuery);
                 return true;
 
             } catch (SQLException e) {
-                
+
             }
         }
         return false;
@@ -296,12 +289,12 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public List<List<String>> getAllUsers(String token) {
-        
-        List <List<String>> allUsers = new ArrayList<>();
-        List <String> normalUsers = new ArrayList<>();
-        List <String> shopOwners = new ArrayList<>();
-        List <String> admins = new ArrayList<>();
-        
+
+        List<List<String>> allUsers = new ArrayList<>();
+        List<String> normalUsers = new ArrayList<>();
+        List<String> shopOwners = new ArrayList<>();
+        List<String> admins = new ArrayList<>();
+
         if (checkToken(token)) {
             String[] userType = token.split(":");
             if (userType[0].equals(ADMIN)) {
@@ -309,35 +302,35 @@ public class MySQLStorage extends AccountsStorage {
                     Connection connection = getConnection(DATABASE_NAME);
                     ResultSet result;
                     Statement statement = connection.createStatement();
-                    
+
                     String tmp = "";
-                    
+
                     String query = "select * from " + NORMAL_USERS_TABLE + ";";
                     result = statement.executeQuery(query);
-                    while(result.next()){
+                    while (result.next()) {
                         tmp = result.getString("email");
                         normalUsers.add(tmp);
                     }
                     allUsers.add(normalUsers);
-                    
+
                     query = "select * from " + SHOP_OWNERS_TABLE + ";";
                     result = statement.executeQuery(query);
-                    while(result.next()){
+                    while (result.next()) {
                         tmp = result.getString("email");
                         shopOwners.add(tmp);
                     }
                     allUsers.add(shopOwners);
-                    
+
                     query = "select * from " + ADMINS_TABLE + ";";
                     result = statement.executeQuery(query);
-                    while(result.next()){
+                    while (result.next()) {
                         tmp = result.getString("email");
                         admins.add(tmp);
                     }
                     allUsers.add(admins);
-                    
+
                 } catch (SQLException e) {
-                    
+
                 }
             }
         }
