@@ -117,7 +117,7 @@ public class MySQLStorage extends AccountsStorage {
         }
     }
 
-    @Override
+     @Override
     public boolean signUp(String email, String userName, String password, String userType) {
         String tableType;
         if (userType.equals(NORMAL_USER)) {
@@ -127,6 +127,7 @@ public class MySQLStorage extends AccountsStorage {
         } else {
             tableType = ADMINS_TABLE;
         }
+
 
         try {
             Connection connection = getConnection(DATABASE_NAME);
