@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import java.sql.*;
 
 public class MySQLStorage extends AccountsStorage {
 
@@ -67,7 +68,7 @@ public class MySQLStorage extends AccountsStorage {
     private void createDataBase() {
 
         Connection connection = null;
-        
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + "mysql" + "?"
@@ -100,16 +101,49 @@ public class MySQLStorage extends AccountsStorage {
         }
     }
 
+    private boolean checkToken(String token) {
+        String query = "select * from tokens where token = " + '"' + token + '"' + ";";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?" + "user=" + USER + "&password=" + PASSWORD);
+            Statement statement = connection.createStatement();
+
+            // execute the query, and get a java resultset
+            ResultSet result = statement.executeQuery(query);
+
+            if (result.next()) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
     private String generateToken(String userType) {
         //Token : userType:Random Number.
         //Random Number: random 4-digit fixed, 1000 - 9999.
-        return "";
+
+        // Generate the random number;
+        String token;
+        while (true) {
+            token = "";
+            int randomNumber = (int) ((Math.random() * ((9999 - 1000) + 1)) + 1000);
+            token = userType + ":" + randomNumber;
+
+            if (!checkToken(token)) {
+                return token;
+            }
+        }
     }
 
     @Override
     public boolean signUp(String email, String userName, String password, String userType) {
-        return true;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -124,7 +158,48 @@ public class MySQLStorage extends AccountsStorage {
 
     @Override
     public String logIn(String email, String password, String userType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        String tableType;
+        if (userType.equals("admin"))
+            tableType = "my_admin";
+        else
+            tableType = userType;
+        String checkAccountInTypeTableQuery = "select * from " + tableType + " where email = " + '"' + email + '"' + ";";
+
+        try {
+            int id;
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            Connection connection = DriverManager.getConnection("jdbc:mysql://" + HOST + "/" + DATABASE_NAME + "?" + "user=" + USER + "&password=" + PASSWORD);
+            Statement statement = connection.createStatement();
+
+            // execute the query, and get a java resultset
+            ResultSet result = statement.executeQuery(checkAccountInTypeTableQuery);
+
+            if (!result.next()) {
+                connection.close();
+                return "";
+            } else {
+                id = result.getInt("id");
+                String checkPasswordQuery = "select * from " + USERS_TABLE + " where id = " + id + " and email = " + '"' + email + '"' + " and password = " + '"' + password + '"' + ";";
+                result = statement.executeQuery(checkPasswordQuery);
+                if (!result.next()) {
+                    // wrong password
+                    connection.close();
+                    return "";
+                } else {
+                    // right password
+                    String token = generateToken(userType);
+                    String addTokenQuery = "insert into " + TOKENS_TABLE + " (id,token) " + "values (" + id + "," + '"' + token + '"' + ")" + ";";
+                    statement.executeUpdate(addTokenQuery);
+                    connection.close();
+                    return token;
+                }
+            }
+        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "";
     }
 
     @Override
