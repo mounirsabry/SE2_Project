@@ -10,6 +10,17 @@ The project uses the agile techniques and has 5 sprints.
 The project purpose is to practise web services on e-commerce.
 The used programming language: JAVA
 
+How to use the program.
+You can run the project in your IDE or run through docker, either ways the requirements are constants.
+Since we use maven, you should have no worry about spring boot and other staff.
+However, since maven will not handle the installation of MySQL Server (or the DBMS if you choice to change it) into your device.
+You will have to install it, either directly in case you used the IDE or jar file or through MySQL image in docker.
+
+Once you have the project and installed Mysql, all you have to do is to make sure that mysql server is running, then run the 
+application, the application will start the spring boot server to accept your requests, you case send command to the server using
+browser or postman via the url "localhost:8080" followed the name of the service you want to use.
+You can find all the available api functions in API_Functions class in se2_project package.
+
 Detailed.
   On this project we build web services to enable e-commerce application for customers to buy and sell goods online.
 The project uses maven for handling dependenices and uses docker for simplifing the installation and testing process.
